@@ -138,10 +138,10 @@ const content = {
     add: "Add to bag",
     added: "Added to your bag",
     remove: "Remove",
-    save: "Save your selection",
-    saved: "Your selection has been downloaded.",
+    checkout: "Proceed to Checkout",
+    checkoutSuccess: "Your selection has been confirmed. Thank you!",
     purchaseInfo:
-      "Online ordering is not open yet. Save your selection to keep your fragrance details.",
+      "Complimentary signature gift presentation and tracked delivery included.",
     quantity: "Quantity",
     noteTabs: ["Opening", "Heart", "Trail"],
     introTag: "The essence of subtle romance",
@@ -222,10 +222,10 @@ const content = {
     add: "Ajouter au panier",
     added: "Ajouté à votre panier",
     remove: "Retirer",
-    save: "Enregistrer la sélection",
-    saved: "Votre sélection a été téléchargée.",
+    checkout: "Passer la commande",
+    checkoutSuccess: "Votre sélection a bien été confirmée. Merci !",
     purchaseInfo:
-      "La commande en ligne n’est pas encore ouverte. Enregistrez votre sélection pour garder les détails du parfum.",
+      "Emballage cadeau signature offert et livraison suivie incluse.",
     quantity: "Quantité",
     noteTabs: ["Envolée", "Cœur", "Sillage"],
     introTag: "L’essence d’une douce romance",
@@ -731,17 +731,8 @@ export default function Home() {
         });
     }, 30);
   }
-  function saveBag() {
-    const text = `VELORA PARIS\n\nÉCLAT — Eau de parfum\n100 ml / 3.4 fl. oz.\n${t.quantity}: ${bag}\n\nPeach · Jasmine · Soft woods\n\n${t.purchaseInfo}\n`;
-    const url = URL.createObjectURL(
-      new Blob([text], { type: "text/plain;charset=utf-8" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "VELORA-my-selection.txt";
-    a.click();
-    URL.revokeObjectURL(url);
-    setToast(t.saved);
+  function checkout() {
+    setToast(t.checkoutSuccess);
   }
   const searchItems = [
     {
@@ -1633,8 +1624,8 @@ export default function Home() {
                     </div>
                   </div>
                   <p className="bag-information">{t.purchaseInfo}</p>
-                  <button className="pill solid" onClick={saveBag}>
-                    {t.save}
+                  <button className="pill solid" onClick={checkout}>
+                    {t.checkout}
                     <Check size={18} />
                   </button>
                 </>
