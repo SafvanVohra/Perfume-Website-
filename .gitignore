@@ -48,3 +48,5 @@ next-env.d.ts
 !/public/**
 !/.openai/hosting.json
 tsconfig.tsbuildinfo
+AGENTS.md
+CLAUDE.md
