@@ -7,7 +7,6 @@ import {
   Menu,
   Plus,
   Minus,
-  ChevronDown,
   Check,
   MoveDown,
   ArrowLeft,
@@ -358,8 +357,12 @@ export default function Home() {
   useEffect(() => {
     try {
       const b = Number(localStorage.getItem("velora-selection"));
-      if (Number.isInteger(b) && b >= 0 && b <= 20) setBag(b);
-      if (localStorage.getItem("velora-language") === "fr") setLang("fr");
+      if (Number.isInteger(b) && b >= 0 && b <= 20) {
+        requestAnimationFrame(() => setBag(b));
+      }
+      if (localStorage.getItem("velora-language") === "fr") {
+        requestAnimationFrame(() => setLang("fr"));
+      }
     } catch {}
     // Smooth intro reveal before the curtain lifts.
     const timeout = setTimeout(() => setReady(true), 1800);
@@ -400,7 +403,7 @@ export default function Home() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setReady(true);
+      requestAnimationFrame(() => setReady(true));
       return;
     }
     const smooth = new Lenis({
@@ -627,86 +630,7 @@ export default function Home() {
       lenis.current = null;
     };
   }, [lang]);
-  useEffect(() => {
-    type Tool = {
-      name: string;
-      description: string;
-      inputSchema: object;
-      annotations: { readOnlyHint: boolean };
-      execute: (input: unknown) => unknown;
-    };
-    const context = (
-      document as Document & {
-        modelContext?: {
-          registerTool: (
-            tool: Tool,
-            options: { signal: AbortSignal },
-          ) => void | Promise<void>;
-        };
-      }
-    ).modelContext;
-    if (!context?.registerTool) return;
-    const lifecycle = new AbortController();
-    const tools: Tool[] = [
-      {
-        name: "get_eclat_details",
-        description:
-          "Read the VELORA Éclat fragrance details. Does not place an order.",
-        inputSchema: {
-          type: "object",
-          properties: {},
-          additionalProperties: false,
-        },
-        annotations: { readOnlyHint: true },
-        execute: () => ({
-          name: "Éclat",
-          brand: "VELORA Paris",
-          concentration: "Eau de parfum",
-          volume: "100 ml",
-          notes: ["peach", "jasmine", "soft woods"],
-          orderingAvailable: false,
-        }),
-      },
-      {
-        name: "set_fragrance_selection",
-        description:
-          "Set the device-local Éclat bag quantity and open the bag. Does not purchase or submit an order.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            quantity: { type: "integer", minimum: 0, maximum: 20 },
-          },
-          required: ["quantity"],
-          additionalProperties: false,
-        },
-        annotations: { readOnlyHint: false },
-        execute: async (input: unknown) => {
-          const q = (input as { quantity?: unknown })?.quantity;
-          if (typeof q !== "number" || !Number.isInteger(q) || q < 0 || q > 20)
-            throw new Error("Quantity must be an integer from 0 to 20.");
-          updateBag(q);
-          setPanel("bag");
-          await new Promise<void>((resolve) =>
-            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-          );
-          return {
-            fragrance: "Éclat",
-            quantity: q,
-            scope: "this browser",
-            orderPlaced: false,
-          };
-        },
-      },
-    ];
-    for (const tool of tools) {
-      try {
-        Promise.resolve(
-          context.registerTool(tool, { signal: lifecycle.signal }),
-        ).catch(() => {});
-      } catch {}
-    }
-    return () => lifecycle.abort();
-  }, []);
+
   function updateBag(value: number) {
     const next = Math.max(0, Math.min(20, value));
     setBag(next);
